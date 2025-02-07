@@ -1,13 +1,14 @@
 package proxy
 
 import (
+	"os"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/rancher/shepherd/clients/rancher"
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
 	"github.com/rancher/shepherd/extensions/token"
-	ranchFrame "github.com/rancher/shepherd/pkg/config"
+	shepherdConfig "github.com/rancher/shepherd/pkg/config"
 	"github.com/rancher/shepherd/pkg/session"
 	"github.com/rancher/tfp-automation/config"
 	"github.com/rancher/tfp-automation/defaults/configs"
@@ -26,6 +27,7 @@ type TfpProxyProvisioningTestSuite struct {
 	suite.Suite
 	client                     *rancher.Client
 	session                    *session.Session
+	cattleConfig               map[string]any
 	rancherConfig              *rancher.Config
 	terraformConfig            *config.TerraformConfig
 	terratestConfig            *config.TerratestConfig
@@ -41,11 +43,8 @@ func (p *TfpProxyProvisioningTestSuite) TearDownSuite() {
 }
 
 func (p *TfpProxyProvisioningTestSuite) SetupSuite() {
-	p.terraformConfig = new(config.TerraformConfig)
-	ranchFrame.LoadConfig(config.TerraformConfigurationFileKey, p.terraformConfig)
-
-	p.terratestConfig = new(config.TerratestConfig)
-	ranchFrame.LoadConfig(config.TerratestConfigurationFileKey, p.terratestConfig)
+	p.cattleConfig = shepherdConfig.LoadConfigFromFile(os.Getenv(shepherdConfig.ConfigEnvironmentKey))
+	p.rancherConfig, p.terraformConfig, p.terratestConfig = config.LoadTFPConfigs(p.cattleConfig)
 
 	keyPath := rancher2.SetKeyPath(keypath.ProxyKeyPath)
 	standaloneTerraformOptions := framework.Setup(p.T(), p.terraformConfig, p.terratestConfig, keyPath)
@@ -57,18 +56,16 @@ func (p *TfpProxyProvisioningTestSuite) SetupSuite() {
 	p.proxyBastion = proxyBastion
 }
 
-func (p *TfpProxyProvisioningTestSuite) TfpSetupSuite(terratestConfig *config.TerratestConfig, terraformConfig *config.TerraformConfig) {
+func (p *TfpProxyProvisioningTestSuite) TfpSetupSuite() {
 	testSession := session.NewSession()
 	p.session = testSession
 
-	rancherConfig := new(rancher.Config)
-	ranchFrame.LoadConfig(configs.Rancher, rancherConfig)
-
-	p.rancherConfig = rancherConfig
+	p.cattleConfig = shepherdConfig.LoadConfigFromFile(os.Getenv(shepherdConfig.ConfigEnvironmentKey))
+	p.rancherConfig, p.terraformConfig, p.terratestConfig = config.LoadTFPConfigs(p.cattleConfig)
 
 	adminUser := &management.User{
 		Username: "admin",
-		Password: rancherConfig.AdminPassword,
+		Password: p.rancherConfig.AdminPassword,
 	}
 
 	p.adminUser = adminUser
@@ -76,16 +73,16 @@ func (p *TfpProxyProvisioningTestSuite) TfpSetupSuite(terratestConfig *config.Te
 	userToken, err := token.GenerateUserToken(adminUser, p.rancherConfig.Host)
 	require.NoError(p.T(), err)
 
-	rancherConfig.AdminToken = userToken.Token
+	p.rancherConfig.AdminToken = userToken.Token
 
-	client, err := rancher.NewClient(rancherConfig.AdminToken, testSession)
+	client, err := rancher.NewClient(p.rancherConfig.AdminToken, testSession)
 	require.NoError(p.T(), err)
 
 	p.client = client
-	p.client.RancherConfig.AdminToken = rancherConfig.AdminToken
+	p.client.RancherConfig.AdminToken = p.rancherConfig.AdminToken
 
 	keyPath := rancher2.SetKeyPath(keypath.RancherKeyPath)
-	terraformOptions := framework.Setup(p.T(), terraformConfig, terratestConfig, keyPath)
+	terraformOptions := framework.Setup(p.T(), p.terraformConfig, p.terratestConfig, keyPath)
 	p.terraformOptions = terraformOptions
 }
 
@@ -109,7 +106,7 @@ func (p *TfpProxyProvisioningTestSuite) TestTfpNoProxyProvisioning() {
 		terraformConfig.Module = tt.module
 		terraformConfig.Proxy.ProxyBastion = ""
 
-		p.TfpSetupSuite(&terratestConfig, &terraformConfig)
+		p.TfpSetupSuite()
 
 		provisioning.GetK8sVersion(p.T(), p.client, &terratestConfig, &terraformConfig, configs.DefaultK8sVersion)
 
@@ -120,7 +117,9 @@ func (p *TfpProxyProvisioningTestSuite) TestTfpNoProxyProvisioning() {
 			keyPath := rancher2.SetKeyPath(keypath.RancherKeyPath)
 			defer cleanup.Cleanup(p.T(), p.terraformOptions, keyPath)
 
-			clusterIDs := provisioning.Provision(p.T(), p.client, p.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, p.terraformOptions, nil)
+			configMap := []map[string]any{p.cattleConfig}
+
+			clusterIDs := provisioning.Provision(p.T(), p.client, p.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, p.terraformOptions, configMap)
 			provisioning.VerifyClustersState(p.T(), p.client, clusterIDs)
 			provisioning.VerifyWorkloads(p.T(), p.client, clusterIDs)
 		})
@@ -151,7 +150,7 @@ func (p *TfpProxyProvisioningTestSuite) TestTfpProxyProvisioning() {
 		terraformConfig.Module = tt.module
 		terraformConfig.Proxy.ProxyBastion = p.proxyBastion
 
-		p.TfpSetupSuite(&terratestConfig, &terraformConfig)
+		p.TfpSetupSuite()
 
 		provisioning.GetK8sVersion(p.T(), p.client, &terratestConfig, &terraformConfig, configs.DefaultK8sVersion)
 
@@ -162,7 +161,9 @@ func (p *TfpProxyProvisioningTestSuite) TestTfpProxyProvisioning() {
 			keyPath := rancher2.SetKeyPath(keypath.RancherKeyPath)
 			defer cleanup.Cleanup(p.T(), p.terraformOptions, keyPath)
 
-			clusterIDs := provisioning.Provision(p.T(), p.client, p.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, p.terraformOptions, nil)
+			configMap := []map[string]any{p.cattleConfig}
+
+			clusterIDs := provisioning.Provision(p.T(), p.client, p.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, p.terraformOptions, configMap)
 			provisioning.VerifyClustersState(p.T(), p.client, clusterIDs)
 			provisioning.VerifyWorkloads(p.T(), p.client, clusterIDs)
 		})

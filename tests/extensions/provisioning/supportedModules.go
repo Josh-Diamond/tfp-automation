@@ -2,6 +2,7 @@ package provisioning
 
 import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/rancher/shepherd/pkg/config/operations"
 	"github.com/rancher/tfp-automation/config"
 	"github.com/rancher/tfp-automation/defaults/clustertypes"
 	"github.com/rancher/tfp-automation/defaults/modules"
@@ -10,14 +11,11 @@ import (
 // SupportedModules is a function that will check if the user-inputted module is supported.
 func SupportedModules(terraformConfig *config.TerraformConfig, terraformOptions *terraform.Options, configMap []map[string]any) bool {
 	var isSupported bool
-	if configMap != nil {
-		for _, terratestConfig := range configMap {
-			module := terratestConfig["terraform"].(config.TerraformConfig).Module
-			isSupported = verifyModule(module)
-		}
-	} else {
-		module := terraformConfig.Module
-		isSupported = verifyModule(module)
+	for _, cattleConfig := range configMap {
+		tfConfig := new(config.TerraformConfig)
+		operations.LoadObjectFromMap(config.TerraformConfigurationFileKey, cattleConfig, tfConfig)
+
+		isSupported = verifyModule(terraformConfig.Module)
 	}
 
 	return isSupported

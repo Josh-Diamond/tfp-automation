@@ -1,6 +1,7 @@
 package airgap
 
 import (
+	"os"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -8,6 +9,7 @@ import (
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
 	"github.com/rancher/shepherd/extensions/token"
 	ranchFrame "github.com/rancher/shepherd/pkg/config"
+	shepherdConfig "github.com/rancher/shepherd/pkg/config"
 	"github.com/rancher/shepherd/pkg/session"
 	"github.com/rancher/tfp-automation/config"
 	"github.com/rancher/tfp-automation/defaults/configs"
@@ -26,6 +28,7 @@ type TfpAirgapProvisioningTestSuite struct {
 	suite.Suite
 	client                     *rancher.Client
 	session                    *session.Session
+	cattleConfig               map[string]any
 	rancherConfig              *rancher.Config
 	terraformConfig            *config.TerraformConfig
 	terratestConfig            *config.TerratestConfig
@@ -61,14 +64,12 @@ func (a *TfpAirgapProvisioningTestSuite) TfpSetupSuite(terratestConfig *config.T
 	testSession := session.NewSession()
 	a.session = testSession
 
-	rancherConfig := new(rancher.Config)
-	ranchFrame.LoadConfig(configs.Rancher, rancherConfig)
-
-	a.rancherConfig = rancherConfig
+	a.cattleConfig = shepherdConfig.LoadConfigFromFile(os.Getenv(shepherdConfig.ConfigEnvironmentKey))
+	a.rancherConfig, a.terraformConfig, a.terratestConfig = config.LoadTFPConfigs(a.cattleConfig)
 
 	adminUser := &management.User{
 		Username: "admin",
-		Password: rancherConfig.AdminPassword,
+		Password: a.rancherConfig.AdminPassword,
 	}
 
 	a.adminUser = adminUser
@@ -76,13 +77,13 @@ func (a *TfpAirgapProvisioningTestSuite) TfpSetupSuite(terratestConfig *config.T
 	userToken, err := token.GenerateUserToken(adminUser, a.rancherConfig.Host)
 	require.NoError(a.T(), err)
 
-	rancherConfig.AdminToken = userToken.Token
+	a.rancherConfig.AdminToken = userToken.Token
 
-	client, err := rancher.NewClient(rancherConfig.AdminToken, testSession)
+	client, err := rancher.NewClient(a.rancherConfig.AdminToken, testSession)
 	require.NoError(a.T(), err)
 
 	a.client = client
-	a.client.RancherConfig.AdminToken = rancherConfig.AdminToken
+	a.client.RancherConfig.AdminToken = a.rancherConfig.AdminToken
 
 	keyPath := rancher2.SetKeyPath(keypath.RancherKeyPath)
 	terraformOptions := framework.Setup(a.T(), terraformConfig, terratestConfig, keyPath)
@@ -118,7 +119,9 @@ func (a *TfpAirgapProvisioningTestSuite) TestTfpAirgapProvisioning() {
 			keyPath := rancher2.SetKeyPath(keypath.RancherKeyPath)
 			defer cleanup.Cleanup(a.T(), a.terraformOptions, keyPath)
 
-			clusterIDs := provisioning.Provision(a.T(), a.client, a.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, a.terraformOptions, nil)
+			configMap := []map[string]any{a.cattleConfig}
+
+			clusterIDs := provisioning.Provision(a.T(), a.client, a.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, a.terraformOptions, configMap)
 			provisioning.VerifyClustersState(a.T(), a.client, clusterIDs)
 			provisioning.VerifyWorkloads(a.T(), a.client, clusterIDs)
 		})
@@ -158,11 +161,13 @@ func (a *TfpAirgapProvisioningTestSuite) TestTfpAirgapUpgrading() {
 			keyPath := rancher2.SetKeyPath(keypath.RancherKeyPath)
 			defer cleanup.Cleanup(a.T(), a.terraformOptions, keyPath)
 
-			clusterIDs := provisioning.Provision(a.T(), a.client, a.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, a.terraformOptions, nil)
+			configMap := []map[string]any{a.cattleConfig}
+
+			clusterIDs := provisioning.Provision(a.T(), a.client, a.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, a.terraformOptions, configMap)
 			provisioning.VerifyClustersState(a.T(), a.client, clusterIDs)
 			provisioning.VerifyWorkloads(a.T(), a.client, clusterIDs)
 
-			provisioning.KubernetesUpgrade(a.T(), a.client, a.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, a.terraformOptions)
+			provisioning.KubernetesUpgrade(a.T(), a.client, a.rancherConfig, &terraformConfig, &terratestConfig, testUser, testPassword, clusterName, poolName, a.terraformOptions, configMap)
 			provisioning.VerifyClustersState(a.T(), a.client, clusterIDs)
 			provisioning.VerifyWorkloads(a.T(), a.client, clusterIDs)
 		})
