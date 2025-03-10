@@ -28,6 +28,7 @@ require (
 	github.com/antihax/optional v1.0.0
 	github.com/gruntwork-io/terratest v0.42.0
 	github.com/rancher/norman v0.5.2
+	github.com/rancher/rancher v0.0.0-20250228094653-6e82729d08cf
 	github.com/rancher/rancher/pkg/apis v0.0.0
 	github.com/rancher/shepherd v0.0.0-20250225165610-3b5c95e0e613
 	github.com/rancher/tests/actions v0.0.0-20250305214755-059b5376c23f
@@ -45,7 +46,6 @@ require (
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/pkg/sftp v1.13.5 // indirect
-	github.com/rancher/rancher v0.0.0-20250228094653-6e82729d08cf // indirect
 	github.com/rancher/wrangler/v3 v3.2.0-rc.3 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
