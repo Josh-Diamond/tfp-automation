@@ -67,6 +67,10 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	s.cattleConfig = configMap[0]
 	s.rancherConfig, s.terraformConfig, s.terratestConfig = config.LoadTFPConfigs(s.cattleConfig)
 
+	if s.rancherConfig.AdminPassword == "" {
+		_, s.rancherConfig.AdminPassword = configs.CreateTestCredentials()
+	}
+
 	adminUser := &management.User{
 		Username: "admin",
 		Password: s.rancherConfig.AdminPassword,

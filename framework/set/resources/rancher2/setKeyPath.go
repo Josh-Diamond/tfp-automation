@@ -15,7 +15,7 @@ func SetKeyPath(keyPath, provider string) (string, string) {
 			return "", ""
 		}
 
-		userDir = filepath.Join(userDir, "go/")
+		userDir = filepath.Join(userDir, "work/")
 	}
 
 	keyPath = filepath.Join(userDir, keyPath)
