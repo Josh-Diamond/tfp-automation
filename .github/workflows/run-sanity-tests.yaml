@@ -49,7 +49,13 @@ jobs:
           echo "::add-mask::${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Set up SSH keys
-        run: ls -a
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.TFP_SSH_PRIVATE_KEY }}" > ~/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
+          chmod 600 ~/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
+
+          echo "${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY }}" > ~/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
+          chmod 600 ~/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
         # run: |
         #   mkdir -p /home/runner/work/tfp-automation/tfp-automation/.ssh
 
