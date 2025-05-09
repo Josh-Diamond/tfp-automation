@@ -50,7 +50,7 @@ jobs:
 
       - name: Set up SSH keys
         run: |
-          pwd
+          
           mkdir -p .ssh
 
           echo "${{ secrets.TFP_SSH_PRIVATE_KEY }}" > .ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
@@ -136,7 +136,7 @@ jobs:
 
       - name: Run Sanity Test Suite
         run: |
-          export PATH=$PATH:/home/runner/go/bin/
+          export PATH=$PATH:/home/runner/work/tfp-automation/tfp-automation/
           gotestsum \
             --format standard-verbose \
             --packages=github.com/rancher/tfp-automation/tests/sanity \
