@@ -1,4 +1,4 @@
-name: Run Sanity Testss
+name: Run Sanity Tests
 
 on:
   pull_request:
@@ -49,14 +49,15 @@ jobs:
           echo "::add-mask::${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Set up SSH keys
-        run: |
-          mkdir -p /home/runner/work/tfp-automation/tfp-automation/.ssh
+        run: ls -a
+        # run: |
+        #   mkdir -p /home/runner/work/tfp-automation/tfp-automation/.ssh
 
-          echo "${{ secrets.TFP_SSH_PRIVATE_KEY }}" > /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
-          chmod 600 /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
+        #   echo "${{ secrets.TFP_SSH_PRIVATE_KEY }}" > /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
+        #   chmod 600 /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
 
-          echo "${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY }}" > /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
-          chmod 600 /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
+        #   echo "${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY }}" > /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
+        #   chmod 600 /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
 
       - name: Create config.yaml
         run: |
