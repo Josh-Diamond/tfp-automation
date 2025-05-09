@@ -1,4 +1,4 @@
-name: Run Sanity Tests
+name: Run Sanity Testss
 
 on:
   pull_request:
