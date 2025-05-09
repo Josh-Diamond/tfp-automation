@@ -50,6 +50,7 @@ jobs:
 
       - name: Set up SSH keys
         run: |
+          pwd
           mkdir -p .ssh
 
           echo "${{ secrets.TFP_SSH_PRIVATE_KEY }}" > .ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
