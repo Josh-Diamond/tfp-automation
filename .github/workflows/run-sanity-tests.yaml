@@ -50,20 +50,13 @@ jobs:
 
       - name: Set up SSH keys
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.TFP_SSH_PRIVATE_KEY }}" > ~/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
-          chmod 600 ~/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
+          mkdir -p .ssh
 
-          echo "${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY }}" > ~/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
-          chmod 600 ~/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
-        # run: |
-        #   mkdir -p /home/runner/work/tfp-automation/tfp-automation/.ssh
+          echo "${{ secrets.TFP_SSH_PRIVATE_KEY }}" > .ssh/${{ secrets.TFP_AWS_KEY_NAME }}.pem
+          chmod 600 .ssh/${{ secrets.TFP_AWS_KEY_NAME }}.pem
 
-        #   echo "${{ secrets.TFP_SSH_PRIVATE_KEY }}" > /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
-        #   chmod 600 /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_SSH_PRIVATE_KEY_PATH }}.pem
-
-        #   echo "${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY }}" > /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
-        #   chmod 600 /home/runner/work/tfp-automation/tfp-automation/.ssh/${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY_PATH }}.pem
+          echo "${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY }}" > .ssh/${{ secrets.TFP_WINDOWS_KEY_NAME }}.pem
+          chmod 600 .ssh/${{ secrets.TFP_WINDOWS_KEY_NAME }}.pem
 
       - name: Create config.yaml
         run: |
