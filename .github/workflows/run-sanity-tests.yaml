@@ -135,7 +135,6 @@ jobs:
 
       - name: Run Sanity Test Suite
         run: |
-          export PATH=$PATH:/home/runner/go/bin/
           gotestsum \
             --format standard-verbose \
             --packages=github.com/rancher/tfp-automation/tests/sanity \
