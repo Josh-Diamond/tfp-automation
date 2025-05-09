@@ -48,13 +48,6 @@ jobs:
           echo "::add-mask::${{ secrets.AWS_ACCESS_KEY_ID }}"
           echo "::add-mask::${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
-      - name: Start ssh-agent
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: |
-            ${{ secrets.TFP_SSH_PRIVATE_KEY }}
-            ${{ secrets.TFP_WINDOWS_SSH_PRIVATE_KEY }}
-
       - name: Set up SSH keys
         run: |
           mkdir -p .ssh
