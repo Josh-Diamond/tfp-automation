@@ -23,6 +23,7 @@ import (
 	resources "github.com/rancher/tfp-automation/framework/set/resources/sanity"
 	qase "github.com/rancher/tfp-automation/pipeline/qase/results"
 	"github.com/rancher/tfp-automation/tests/extensions/provisioning"
+	"github.com/rancher/tfp-automation/tests/infrastructure"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -68,9 +69,9 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	s.rancherConfig, s.terraformConfig, s.terratestConfig = config.LoadTFPConfigs(s.cattleConfig)
 
 	// TESTING - TO BE REMOVED
-	_, s.rancherConfig.AdminPassword = configs.CreateTestCredentials()
+	infrastructure.AcceptEULA(s.T(), s.session, s.rancherConfig.Host)
 	// END TESTING - TO BE REMOVED
-	
+
 	adminUser := &management.User{
 		Username: "admin",
 		Password: s.rancherConfig.AdminPassword,
