@@ -26,7 +26,6 @@ import (
 	"github.com/rancher/tfp-automation/tests/infrastructure"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"github.com/josh-diamond/tfp-automation/tests/extensions/token"
 )
 
 type TfpSanityProvisioningTestSuite struct {
