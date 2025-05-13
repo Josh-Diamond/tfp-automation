@@ -69,10 +69,6 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	s.cattleConfig = configMap[0]
 	s.rancherConfig, s.terraformConfig, s.terratestConfig = config.LoadTFPConfigs(s.cattleConfig)
 
-	// adminUser := &management.User{
-	// 	Username: "admin",
-	// 	Password: s.rancherConfig.AdminPassword,
-	// }
 	adminUser := &management.User{
 		Username: "admin",
 		Password: s.terraformConfig.Standalone.BootstrapPassword,
@@ -81,16 +77,10 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	userToken, err := token.GenerateUserToken(adminUser, s.rancherConfig.Host)
 	require.NoError(s.T(), err)
 
-	logrus.Infof("Generated user token: %v", len(userToken.Token))
-
 	s.rancherConfig.AdminToken = userToken.Token
-
-	logrus.Infof("s.rancherConfig.AdminToken token: %v", len(s.rancherConfig.AdminToken))
 
 	client, err := rancher.NewClient(s.rancherConfig.AdminToken, testSession)
 	require.NoError(s.T(), err)
-
-	logrus.Infof("Rancher client created successfully")
 
 	s.client = client
 	s.client.RancherConfig.AdminToken = s.rancherConfig.AdminToken
@@ -103,8 +93,6 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 
 	err = pipeline.PostRancherInstall(s.client, s.client.RancherConfig.AdminPassword)
 	require.NoError(s.T(), err)
-
-	logrus.Infof("PostRancherInstall ran successfully")
 
 	_, keyPath := rancher2.SetKeyPath(keypath.RancherKeyPath, "")
 	terraformOptions := framework.Setup(s.T(), s.terraformConfig, s.terratestConfig, keyPath)

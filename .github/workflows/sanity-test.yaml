@@ -64,7 +64,6 @@ jobs:
           rancher:
             host: "${{ env.HOSTNAME_PREFIX }}.qa.rancher.space"
             adminPassword: "${{ secrets.TFP_RANCHER_ADMIN_PASSWORD }}"
-            adminToken: ""
             insecure: true
           terraform:
             cni: "calico"
