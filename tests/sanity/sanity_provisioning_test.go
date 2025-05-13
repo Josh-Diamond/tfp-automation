@@ -7,7 +7,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/rancher/shepherd/clients/rancher"
-	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
+	// management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
 	// "github.com/rancher/shepherd/extensions/token"
 	shepherdConfig "github.com/rancher/shepherd/pkg/config"
 	"github.com/rancher/shepherd/pkg/config/operations"
@@ -23,7 +23,7 @@ import (
 	resources "github.com/rancher/tfp-automation/framework/set/resources/sanity"
 	qase "github.com/rancher/tfp-automation/pipeline/qase/results"
 	"github.com/rancher/tfp-automation/tests/extensions/provisioning"
-	"github.com/rancher/tfp-automation/tests/infrastructure"
+	// "github.com/rancher/tfp-automation/tests/infrastructure"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -71,7 +71,7 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	adminToken, err := GenerateUserTokenV1("admin", s.rancherConfig.AdminPassword, s.rancherConfig.Host)
 	require.NoError(s.T(), err)
 
-	s.rancherConfig.AdminToken = userToken.Token
+	s.rancherConfig.AdminToken = adminToken.Token
 
 	client, err := rancher.NewClient(s.rancherConfig.AdminToken, testSession)
 	require.NoError(s.T(), err)
