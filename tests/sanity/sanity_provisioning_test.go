@@ -71,7 +71,7 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	adminToken, err := GenerateUserTokenV1("admin", s.rancherConfig.AdminPassword, s.rancherConfig.Host)
 	require.NoError(s.T(), err)
 
-	s.rancherConfig.AdminToken = adminToken.Token
+	s.rancherConfig.AdminToken = adminToken
 
 	client, err := rancher.NewClient(s.rancherConfig.AdminToken, testSession)
 	require.NoError(s.T(), err)
