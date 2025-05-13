@@ -68,12 +68,7 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	s.cattleConfig = configMap[0]
 	s.rancherConfig, s.terraformConfig, s.terratestConfig = config.LoadTFPConfigs(s.cattleConfig)
 
-	adminUser := &management.User{
-		Username: "admin",
-		Password: s.rancherConfig.AdminPassword,
-	}
-
-	adminToken, err := GenerateUserTokenV1(adminUser, s.rancherConfig.Host)
+	adminToken, err := GenerateUserTokenV1("admin", s.rancherConfig.AdminPassword, s.rancherConfig.Host)
 	require.NoError(s.T(), err)
 
 	s.rancherConfig.AdminToken = userToken.Token
