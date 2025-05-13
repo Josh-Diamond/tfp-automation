@@ -23,7 +23,6 @@ import (
 	resources "github.com/rancher/tfp-automation/framework/set/resources/sanity"
 	qase "github.com/rancher/tfp-automation/pipeline/qase/results"
 	"github.com/rancher/tfp-automation/tests/extensions/provisioning"
-	"github.com/rancher/tfp-automation/tests/extensions/token"
 	"github.com/rancher/tfp-automation/tests/infrastructure"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -75,7 +74,7 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 		Password: s.rancherConfig.AdminPassword,
 	}
 
-	adminToken, err := token.GenerateUserTokenV1(adminUser, s.rancherConfig.Host)
+	adminToken, err := GenerateUserTokenV1(adminUser, s.rancherConfig.Host)
 	require.NoError(s.T(), err)
 
 	s.rancherConfig.AdminToken = userToken.Token
