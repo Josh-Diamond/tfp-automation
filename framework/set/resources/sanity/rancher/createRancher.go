@@ -23,7 +23,8 @@ func CreateRancher(file *os.File, newFile *hclwrite.File, rootBody *hclwrite.Bod
 	rke2ServerOnePublicIP, nodeBalancerHostname string) (*os.File, error) {
 	userDir, _ := rancher2.SetKeyPath(keypath.SanityKeyPath, terraformConfig.Provider)
 
-	scriptPath := filepath.Join(userDir, "src/github.com/rancher/tfp-automation/framework/set/resources/sanity/rancher/setup.sh")
+	// scriptPath := filepath.Join(userDir, "src/github.com/josh-diamond/tfp-automation/framework/set/resources/sanity/rancher/setup.sh")
+	scriptPath := filepath.Join(userDir, "tfp-automation/tfp-automation/framework/set/resources/sanity/rancher/setup.sh")
 
 	scriptContent, err := os.ReadFile(scriptPath)
 	if err != nil {

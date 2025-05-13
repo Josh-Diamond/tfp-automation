@@ -64,12 +64,12 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	configMap, err := provisioning.UniquifyTerraform([]map[string]any{s.cattleConfig})
 	require.NoError(s.T(), err)
 
-	s.cattleConfig = configMap[0]
+	// s.cattleConfig = configMap[0]
 	s.rancherConfig, s.terraformConfig, s.terratestConfig = config.LoadTFPConfigs(s.cattleConfig)
 
 	adminUser := &management.User{
 		Username: "admin",
-		Password: s.rancherConfig.AdminPassword,
+		Password: s.terraformConfig.Standalone.BootstrapPassword,
 	}
 
 	userToken, err := token.GenerateUserToken(adminUser, s.rancherConfig.Host)
@@ -88,6 +88,8 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	operations.ReplaceValue([]string{"rancher", "adminToken"}, s.rancherConfig.AdminToken, configMap[0])
 	operations.ReplaceValue([]string{"rancher", "adminPassword"}, s.rancherConfig.AdminPassword, configMap[0])
 	operations.ReplaceValue([]string{"rancher", "host"}, s.rancherConfig.Host, configMap[0])
+
+	s.cattleConfig = configMap[0]
 
 	err = pipeline.PostRancherInstall(s.client, s.client.RancherConfig.AdminPassword)
 	require.NoError(s.T(), err)
@@ -119,11 +121,13 @@ func (s *TfpSanityProvisioningTestSuite) TestTfpProvisioningSanity() {
 	customClusterNames := []string{}
 	testUser, testPassword := configs.CreateTestCredentials()
 
-	for _, tt := range tests {
-		cattleConfig := s.TfpSetupSuite()
-		configMap := []map[string]any{cattleConfig}
+	cattleConfig := s.TfpSetupSuite()
 
-		_, err := operations.ReplaceValue([]string{"terratest", "nodepools"}, tt.nodeRoles, configMap[0])
+	for _, tt := range tests {
+		configMap, err := provisioning.UniquifyTerraform([]map[string]any{cattleConfig})
+		require.NoError(s.T(), err)
+
+		_, err = operations.ReplaceValue([]string{"terratest", "nodepools"}, tt.nodeRoles, configMap[0])
 		require.NoError(s.T(), err)
 
 		_, err = operations.ReplaceValue([]string{"terraform", "module"}, tt.module, configMap[0])
