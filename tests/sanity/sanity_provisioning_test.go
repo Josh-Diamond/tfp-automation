@@ -25,6 +25,8 @@ import (
 	"github.com/rancher/tfp-automation/tests/extensions/provisioning"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/sirupsen/logrus"
 )
 
 type TfpSanityProvisioningTestSuite struct {
