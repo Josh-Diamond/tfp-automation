@@ -8,7 +8,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/rancher/shepherd/clients/rancher"
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
-	"github.com/rancher/shepherd/extensions/token"
+	// "github.com/rancher/shepherd/extensions/token"
 	shepherdConfig "github.com/rancher/shepherd/pkg/config"
 	"github.com/rancher/shepherd/pkg/config/operations"
 	"github.com/rancher/shepherd/pkg/session"
@@ -23,9 +23,11 @@ import (
 	resources "github.com/rancher/tfp-automation/framework/set/resources/sanity"
 	qase "github.com/rancher/tfp-automation/pipeline/qase/results"
 	"github.com/rancher/tfp-automation/tests/extensions/provisioning"
+	"github.com/rancher/tfp-automation/tests/extensions/token"
 	"github.com/rancher/tfp-automation/tests/infrastructure"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"github.com/josh-diamond/tfp-automation/tests/extensions/token"
 )
 
 type TfpSanityProvisioningTestSuite struct {
@@ -68,16 +70,12 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	s.cattleConfig = configMap[0]
 	s.rancherConfig, s.terraformConfig, s.terratestConfig = config.LoadTFPConfigs(s.cattleConfig)
 
-	// TESTING - TO BE REMOVED
-	infrastructure.AcceptEULA(s.T(), s.session, s.rancherConfig.Host)
-	// END TESTING - TO BE REMOVED
-
 	adminUser := &management.User{
 		Username: "admin",
 		Password: s.rancherConfig.AdminPassword,
 	}
 
-	userToken, err := token.GenerateUserToken(adminUser, s.rancherConfig.Host)
+	adminToken, err := token.GenerateUserTokenV1(adminUser, s.rancherConfig.Host)
 	require.NoError(s.T(), err)
 
 	s.rancherConfig.AdminToken = userToken.Token
