@@ -119,10 +119,11 @@ func (s *TfpSanityProvisioningTestSuite) TestTfpProvisioningSanity() {
 	customClusterNames := []string{}
 	testUser, testPassword := configs.CreateTestCredentials()
 
-	cattleConfig := s.TfpSetupSuite()
-	configMap := []map[string]any{cattleConfig}
+	s.cattleConfig := s.TfpSetupSuite()
 
 	for _, tt := range tests {
+		configMap, err := provisioning.UniquifyTerraform([]map[string]any{s.cattleConfig})
+
 		_, err := operations.ReplaceValue([]string{"terratest", "nodepools"}, tt.nodeRoles, configMap[0])
 		require.NoError(s.T(), err)
 

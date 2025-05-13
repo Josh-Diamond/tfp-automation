@@ -15,7 +15,7 @@ env:
   RKE_PROVIDER_VERSION: '1.7.0'
   AWS_PROVIDER_VERSION: '5.95.0'
   LOCALS_PROVIDER_VERSION: '2.5.2'
-  QASE_TEST_RUN_ID: ''
+  QASE_TEST_RUN_ID: '4476'
 
 jobs:
   sanity-tests:
@@ -113,7 +113,6 @@ jobs:
               rke2Version: "${{ env.RKE2_VERSION }}"
           terratest:
             tfLogging: true
-            standaloneLogging: true
             nodeCount: 3
             windowsNodeCount: 1
           EOF
