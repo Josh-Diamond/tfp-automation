@@ -25,8 +25,6 @@ import (
 	"github.com/rancher/tfp-automation/tests/extensions/provisioning"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/sirupsen/logrus"
 )
 
 type TfpSanityProvisioningTestSuite struct {
@@ -76,8 +74,6 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 
 	userToken, err := token.GenerateUserToken(adminUser, s.rancherConfig.Host)
 	require.NoError(s.T(), err)
-    // Troubleshooting -- to be removed
-    logrus.Infof("Generated user token: %s", userToken.Token)
 
 	s.rancherConfig.AdminToken = userToken.Token
 
