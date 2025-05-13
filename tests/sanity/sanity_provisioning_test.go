@@ -25,9 +25,10 @@ import (
 	"github.com/rancher/tfp-automation/tests/extensions/provisioning"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/sirupsen/logrus"
 )
 
-//trigger test
 type TfpSanityProvisioningTestSuite struct {
 	suite.Suite
 	client                     *rancher.Client
@@ -76,10 +77,16 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 	userToken, err := token.GenerateUserToken(adminUser, s.rancherConfig.Host)
 	require.NoError(s.T(), err)
 
+	logrus.Infof("Generated user token: %v", len(userToken.Token))
+
 	s.rancherConfig.AdminToken = userToken.Token
+
+	logrus.Infof("s.rancherConfig.AdminToken token: %v", len(s.rancherConfig.AdminToken))
 
 	client, err := rancher.NewClient(s.rancherConfig.AdminToken, testSession)
 	require.NoError(s.T(), err)
+
+	logrus.Infof("Rancher client created successfully")
 
 	s.client = client
 	s.client.RancherConfig.AdminToken = s.rancherConfig.AdminToken
@@ -92,6 +99,8 @@ func (s *TfpSanityProvisioningTestSuite) TfpSetupSuite() map[string]any {
 
 	err = pipeline.PostRancherInstall(s.client, s.client.RancherConfig.AdminPassword)
 	require.NoError(s.T(), err)
+
+	logrus.Infof("PostRancherInstall ran successfully")
 
 	_, keyPath := rancher2.SetKeyPath(keypath.RancherKeyPath, "")
 	terraformOptions := framework.Setup(s.T(), s.terraformConfig, s.terratestConfig, keyPath)
