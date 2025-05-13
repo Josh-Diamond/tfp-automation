@@ -37,13 +37,15 @@ func GenerateUserTokenV3(username, password, host string) (string, error) {
 
 	bodyContent, err := json.Marshal(tokenReq)
 	if err != nil {
-		return "", logrus.Infof("failed to marshal token request: %v", err)
+		logrus.Errorf("failed to marshal token request: %v", err)
+		return "", err
 	}
 
 	url := urlProtocol + host + v3TokenEndpoint
 	req, err := http.NewRequest(post, url, bytes.NewBuffer(bodyContent))
 	if err != nil {
-		return "", logrus.Infof("failed to create token request: %v", err)
+		logrus.Errorf("failed to create token request: %v", err)
+		return "", err
 	}
 
 	req.Header.Set(contentType, contentTypeJSON)
@@ -55,23 +57,27 @@ func GenerateUserTokenV3(username, password, host string) (string, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", logrus.Infof("token request failed: %v", err)
+		logrus.Errorf("token request failed: %v", err)
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	respBody, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode >= 300 {
-		return "", logrus.Infof("token request failed: status %d - %s", resp.StatusCode, string(respBody))
+		logrus.Errorf("token request failed: status %d - %s", resp.StatusCode, string(respBody))
+		return "", fmt.Errorf("token request failed: status %d", resp.StatusCode)
 	}
 
 	var tokenResp TokenResponse
 	if err := json.Unmarshal(respBody, &tokenResp); err != nil {
-		return "", logrus.Infof("failed to unmarshal token response: %v", err)
+		logrus.Errorf("failed to unmarshal token response: %v", err)
+		return "", err
 	}
 
 	if tokenResp.Token == "" {
-		return "", logrus.Infof("received empty token in response")
+		logrus.Errorf("received empty token in response")
+		return "", fmt.Errorf("received empty token in response")
 	}
 
 	return tokenResp.Token, nil
@@ -86,13 +92,15 @@ func GenerateUserTokenV1(username, password, host string) (string, error) {
 
 	bodyContent, err := json.Marshal(tokenReq)
 	if err != nil {
-		return "", logrus.Infof("failed to marshal token request: %v", err)
+		logrus.Errorf("failed to marshal token request: %v", err)
+		return "", err
 	}
 
 	url := urlProtocol + host + v1TokenEndpoint
 	req, err := http.NewRequest(post, url, bytes.NewBuffer(bodyContent))
 	if err != nil {
-		return "", logrus.Infof("failed to create token request: %v", err)
+		logrus.Errorf("failed to create token request: %v", err)
+		return "", err
 	}
 
 	req.Header.Set(contentType, contentTypeJSON)
@@ -104,23 +112,27 @@ func GenerateUserTokenV1(username, password, host string) (string, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", logrus.Infof("token request failed: %v", err)
+		logrus.Errorf("token request failed: %v", err)
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	respBody, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode >= 300 {
-		return "", logrus.Infof("token request failed: status %d - %s", resp.StatusCode, string(respBody))
+		logrus.Errorf("token request failed: status %d - %s", resp.StatusCode, string(respBody))
+		return "", fmt.Errorf("token request failed: status %d", resp.StatusCode)
 	}
 
 	var tokenResp TokenResponse
 	if err := json.Unmarshal(respBody, &tokenResp); err != nil {
-		return "", logrus.Infof("failed to unmarshal token response: %v", err)
+		logrus.Errorf("failed to unmarshal token response: %v", err)
+		return "", err
 	}
 
 	if tokenResp.Token == "" {
-		return "", logrus.Infof("received empty token in response")
+		logrus.Errorf("received empty token in response")
+		return "", fmt.Errorf("received empty token in response")
 	}
 
 	return tokenResp.Token, nil
